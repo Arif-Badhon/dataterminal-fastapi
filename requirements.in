@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+pydantic
+pymongo
+pymongo[srv]
+dnspython
+passlib
+cryptography
+openpyxl
+python-jose

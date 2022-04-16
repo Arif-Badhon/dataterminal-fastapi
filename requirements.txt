@@ -46,10 +46,14 @@ pymongo[srv]==4.1.1
     # via -r requirements.in
 python-jose==3.3.0
     # via -r requirements.in
+python-multipart==0.0.5
+    # via -r requirements.in
 rsa==4.8
     # via python-jose
 six==1.16.0
-    # via ecdsa
+    # via
+    #   ecdsa
+    #   python-multipart
 sniffio==1.2.0
     # via anyio
 starlette==0.17.1

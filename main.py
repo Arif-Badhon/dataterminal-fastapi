@@ -1,4 +1,5 @@
 #import all the modules
+import uvicorn
 from pydantic import BaseModel
 from typing import Optional
 from pymongo import MongoClient
@@ -10,6 +11,11 @@ from jwttoken import create_access_token
 from oauth import get_current_user
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.wsgi import WSGIMiddleware
+
+from Dashboards.ed import economic_dashboard
+from Dashboards.bd import business_dashboard
+from Dashboards.id import industry_dashboard
 
 #Run FastApi
 app = FastAPI()
@@ -48,7 +54,15 @@ db = client["DATATERMINAL_USER"]
 #Routes
 @app.get("/")
 def read_root(current_user:User = Depends(get_current_user)):
-	return {"data":"Hello OWrld"}
+    return {
+        "routes": [
+            {"method": "GET", "path": "/", "summary": "Landing"},
+            {"method": "GET", "path": "/status", "summary": "App status"},
+            {"method": "GET", "path": "/ed", "summary": "Sub-mounted Dash application"},
+            {"method": "GET", "path": "/bd", "summary": "Sub-mounted Dash application"},
+            {"method": "GET", "path": "/id", "summary": "Sub-mounted Dash application"},
+        ]
+    }
 
 @app.post('/register')
 def create_user(request:User):
@@ -68,3 +82,16 @@ def login(request:OAuth2PasswordRequestForm = Depends()):
 		raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail = f'Wrong Username or password')
 	access_token = create_access_token(data={"sub": user["username"] })
 	return {"access_token": access_token, "token_type": "bearer"}
+
+
+dash_app1 = economic_dashboard(requests_pathname_prefix="/ed/")
+app.mount("/ed", WSGIMiddleware(dash_app1.server))
+
+dash_app2 = business_dashboard(requests_pathname_prefix="/bd/")
+app.mount("/bd", WSGIMiddleware(dash_app2.server))
+
+dash_app3 = industry_dashboard(requests_pathname_prefix="/id/")
+app.mount("/id", WSGIMiddleware(dash_app3.server))
+
+if __name__ == "__main__":
+    uvicorn.run(app, port=8000)

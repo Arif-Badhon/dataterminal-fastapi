@@ -9,3 +9,8 @@ cryptography
 openpyxl
 python-jose
 python-multipart
+python-dash
+dash
+pandas
+numpy
+dash_auth

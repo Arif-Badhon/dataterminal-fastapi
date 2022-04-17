@@ -55,16 +55,24 @@ db = client["DATATERMINAL_USER"]
 
 #Routes
 @app.get("/")
-def read_root(current_user:User = Depends(get_current_user)):
+def index():
+    return{'data': 'Hello World'}
+
+@app.get("/dashboard")
+def dashboard(current_user:User = Depends(get_current_user)):
     return {
         "routes": [
-            {"method": "GET", "path": "/", "summary": "Landing"},
-            {"method": "GET", "path": "/status", "summary": "App status"},
-            {"method": "GET", "path": "/ed", "summary": "Sub-mounted Dash application"},
-            {"method": "GET", "path": "/bd", "summary": "Sub-mounted Dash application"},
-            {"method": "GET", "path": "/id", "summary": "Sub-mounted Dash application"},
+            {"method": "GET", "path": "/dashboard", "summary": "Landing"},
+            {"method": "GET", "path": "/dashboard/status", "summary": "App status"},
+            {"method": "GET", "path": "/dashboard/ed", "summary": "Sub-mounted Dash application"},
+            {"method": "GET", "path": "/dashboard/bd", "summary": "Sub-mounted Dash application"},
+            {"method": "GET", "path": "/dashboard/id", "summary": "Sub-mounted Dash application"},
         ]
     }
+
+@app.get("/dashboard/status")
+def get_status(current_user:User = Depends(get_current_user)):
+    return {"status": "ok"}
 
 @app.post('/register')
 def create_user(request:User):
@@ -86,14 +94,14 @@ def login(request:OAuth2PasswordRequestForm = Depends()):
 	return {"access_token": access_token, "token_type": "bearer"}
 
 
-dash_app1 = economic_dashboard(requests_pathname_prefix="/ed/")
-app.mount("/ed", WSGIMiddleware(dash_app1.server))
+dash_app1 = economic_dashboard(requests_pathname_prefix="/dashboard/ed/")
+app.mount("/dashboard/ed", WSGIMiddleware(dash_app1.server))
 
-dash_app2 = business_dashboard(requests_pathname_prefix="/bd/")
-app.mount("/bd", WSGIMiddleware(dash_app2.server))
+dash_app2 = business_dashboard(requests_pathname_prefix="/dashboard/bd/")
+app.mount("/dashboard/bd", WSGIMiddleware(dash_app2.server))
 
-dash_app3 = industry_dashboard(requests_pathname_prefix="/id/")
-app.mount("/id", WSGIMiddleware(dash_app3.server))
+dash_app3 = industry_dashboard(requests_pathname_prefix="/dashboard/id/")
+app.mount("/dashboard/id", WSGIMiddleware(dash_app3.server))
 
 if __name__ == "__main__":
     uvicorn.run(app, port=8000)
